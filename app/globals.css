@@ -1,0 +1,110 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --canvas: #0b0a09;
+  --gold: #c8a86b;
+  --gold-bright: #e6cd96;
+  --ivory: #ede8df;
+  --hairline: rgba(200, 168, 107, 0.16);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--canvas);
+  color: var(--ivory);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: rgba(200, 168, 107, 0.85);
+  color: #0b0a09;
+}
+
+/* refined scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #0b0a09;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a2724;
+  border-radius: 5px;
+  border: 2px solid #0b0a09;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #574a33;
+}
+
+/* keyboard focus — gold ring */
+:focus-visible {
+  outline: 1.5px solid var(--gold);
+  outline-offset: 3px;
+  border-radius: 1px;
+}
+
+@layer components {
+  .hairline {
+    border-color: var(--hairline);
+  }
+  /* uppercase mono eyebrow label */
+  .eyebrow {
+    @apply font-mono text-[11px] uppercase tracking-luxe text-gold;
+  }
+  /* metallic gradient text for display moments */
+  .text-metal {
+    background: linear-gradient(
+      105deg,
+      #ede8df 0%,
+      #e6cd96 28%,
+      #8f7a50 50%,
+      #e6cd96 72%,
+      #ede8df 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .btn-gold {
+    @apply inline-flex cursor-pointer items-center justify-center gap-3 bg-gold px-8 py-4 font-mono text-[11px] uppercase tracking-luxe text-vanta-950 transition-colors duration-300 hover:bg-gold-bright;
+  }
+  .btn-ghost {
+    @apply inline-flex cursor-pointer items-center justify-center gap-3 border border-gold/30 px-8 py-4 font-mono text-[11px] uppercase tracking-luxe text-ivory transition-colors duration-300 hover:border-gold hover:text-gold-bright;
+  }
+  .input-luxe {
+    @apply w-full border border-ivory/15 bg-vanta-900 px-4 py-3.5 text-[15px] text-ivory placeholder:text-ivory-faint transition-colors duration-300 focus:border-gold/60 focus:outline-none;
+  }
+}
+
+/* film grain overlay for atmosphere */
+.grain::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* respect reduced motion globally */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
