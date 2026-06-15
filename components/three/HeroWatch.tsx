@@ -10,10 +10,14 @@ const WatchScene = dynamic(() => import("./WatchScene"), {
 
 /**
  * Mounts the 3D scene only after first paint (idle callback) and only
- * when motion is allowed — so the hero text always wins LCP and
+ * when motion is allowed — the hero text always wins LCP and
  * reduced-motion users get a calm static composition instead.
  */
-export default function HeroWatch() {
+export default function HeroWatch({
+  scrollRef,
+}: {
+  scrollRef?: React.MutableRefObject<number>;
+}) {
   const [ready, setReady] = useState(false);
   const [allowed, setAllowed] = useState(true);
 
@@ -37,7 +41,6 @@ export default function HeroWatch() {
   }, []);
 
   if (!allowed) {
-    // reduced motion: quiet radial glow instead of the rotating watch
     return (
       <div
         aria-hidden
@@ -51,8 +54,7 @@ export default function HeroWatch() {
   }
 
   return (
-    <div className="absolute inset-0" aria-hidden>
-      {/* warm glow behind the watch */}
+    <div className="absolute inset-0" aria-hidden data-cursor-label="Drag">
       <div
         className="absolute inset-0"
         style={{
@@ -60,7 +62,7 @@ export default function HeroWatch() {
             "radial-gradient(ellipse 46% 38% at 50% 52%, rgba(200,168,107,0.13), transparent 70%)",
         }}
       />
-      {ready && <WatchScene />}
+      {ready && <WatchScene scrollRef={scrollRef} />}
     </div>
   );
 }

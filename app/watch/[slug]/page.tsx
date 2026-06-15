@@ -3,6 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Gallery from "@/components/product/Gallery";
 import AddToBag from "@/components/product/AddToBag";
+import AnimatedSpecs from "@/components/product/AnimatedSpecs";
+import Configurator from "@/components/product/Configurator";
 import ProductCard from "@/components/ProductCard";
 import Reveal from "@/components/Reveal";
 import { getProduct, getRelated, products } from "@/lib/products";
@@ -24,17 +26,6 @@ export function generateMetadata({
     description: `${product.tagline} — ${product.name}, ${formatPrice(product.price)}. A fictional timepiece from the VANTA concept store by Daycraft Studio.`,
   };
 }
-
-const SPEC_LABELS: Record<string, string> = {
-  movement: "Movement",
-  caliber: "Calibre",
-  caseSize: "Case size",
-  caseMaterial: "Case material",
-  waterResistance: "Water resistance",
-  crystal: "Crystal",
-  strap: "Strap",
-  reference: "Reference",
-};
 
 export default function WatchPage({ params }: { params: { slug: string } }) {
   const product = getProduct(params.slug);
@@ -69,7 +60,9 @@ export default function WatchPage({ params }: { params: { slug: string } }) {
       </nav>
 
       <div className="grid gap-12 lg:grid-cols-[1.15fr_1fr] lg:gap-16">
-        <Gallery images={product.images} name={product.name} />
+        <div className="lg:sticky lg:top-28 lg:self-start">
+          <Gallery images={product.images} name={product.name} />
+        </div>
 
         <div>
           <p className="eyebrow">{product.collection} collection</p>
@@ -98,24 +91,12 @@ export default function WatchPage({ params }: { params: { slug: string } }) {
             <h2 className="font-mono text-[10px] uppercase tracking-luxe text-ivory-faint">
               Specifications
             </h2>
-            <table className="mt-4 w-full border-t border-gold/10 text-left">
-              <tbody>
-                {Object.entries(product.specs).map(([key, value]) => (
-                  <tr key={key} className="border-b border-gold/10">
-                    <th
-                      scope="row"
-                      className="w-2/5 py-3.5 pr-4 align-top font-mono text-[10.5px] font-normal uppercase tracking-wide2 text-ivory-faint"
-                    >
-                      {SPEC_LABELS[key] ?? key}
-                    </th>
-                    <td className="py-3.5 text-[14px] text-ivory">{value}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <AnimatedSpecs specs={product.specs} />
           </div>
         </div>
       </div>
+
+      <Configurator product={product} />
 
       {/* related */}
       <section className="mt-28 border-t border-gold/10 pt-16" aria-label="You may also like">

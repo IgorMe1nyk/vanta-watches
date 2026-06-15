@@ -6,6 +6,9 @@ import SmoothScroll from "@/components/SmoothScroll";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import CartDrawer from "@/components/cart/CartDrawer";
+import CustomCursor from "@/components/fx/CustomCursor";
+import IntroOverlay from "@/components/fx/IntroOverlay";
+import ScrollProgress from "@/components/fx/ScrollProgress";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -56,10 +59,13 @@ export default function RootLayout({
       >
         <CartProvider>
           <SmoothScroll>
+            <IntroOverlay />
+            <ScrollProgress />
             <Nav />
             <main id="main">{children}</main>
             <Footer />
             <CartDrawer />
+            <CustomCursor />
           </SmoothScroll>
         </CartProvider>
       </body>

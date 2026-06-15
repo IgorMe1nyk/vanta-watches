@@ -14,10 +14,32 @@ export default function Gallery({
   name: string;
 }) {
   const [index, setIndex] = useState(0);
+  const [zoom, setZoom] = useState(false);
+  const [origin, setOrigin] = useState("50% 50%");
 
   return (
     <div>
-      <div className="relative aspect-[4/5] overflow-hidden bg-vanta-900">
+      <div
+        className="group/zoom relative aspect-[4/5] overflow-hidden bg-vanta-900"
+        data-cursor-label={zoom ? "Close" : "Zoom"}
+        onPointerMove={(e) => {
+          const r = e.currentTarget.getBoundingClientRect();
+          setOrigin(
+            `${(((e.clientX - r.left) / r.width) * 100).toFixed(1)}% ${(((e.clientY - r.top) / r.height) * 100).toFixed(1)}%`,
+          );
+        }}
+        onClick={() => setZoom((z) => !z)}
+        onPointerLeave={() => setZoom(false)}
+        role="button"
+        tabIndex={0}
+        aria-label={`${zoom ? "Close zoom on" : "Zoom into"} product image`}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setZoom((z) => !z);
+          }
+        }}
+      >
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={index}
@@ -33,7 +55,11 @@ export default function Gallery({
               fill
               priority={index === 0}
               sizes="(max-width: 1024px) 100vw, 55vw"
-              className="object-cover"
+              className="object-cover transition-transform duration-500 ease-luxe"
+              style={{
+                transformOrigin: origin,
+                transform: zoom ? "scale(2.1)" : "scale(1)",
+              }}
             />
           </motion.div>
         </AnimatePresence>
@@ -41,6 +67,12 @@ export default function Gallery({
           aria-hidden
           className="pointer-events-none absolute inset-0 bg-gradient-to-t from-vanta-950/30 to-transparent"
         />
+        <p
+          aria-hidden
+          className="pointer-events-none absolute bottom-3 right-4 font-mono text-[9px] uppercase tracking-luxe text-ivory-faint opacity-0 transition-opacity duration-300 group-hover/zoom:opacity-100"
+        >
+          Click to {zoom ? "close" : "magnify"}
+        </p>
       </div>
       <div className="mt-3 grid grid-cols-3 gap-3" role="tablist" aria-label={`${name} gallery`}>
         {images.map((img, i) => (

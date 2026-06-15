@@ -93,6 +93,23 @@ export default function CheckoutPage() {
         Almost yours.
       </h1>
 
+      {/* stepped progress */}
+      <ol className="mt-10 flex max-w-3xl items-center gap-0" aria-label="Checkout steps">
+        {["Contact", "Shipping", "Delivery", "Payment"].map((step, i) => (
+          <li key={step} className="flex flex-1 items-center">
+            <span className="flex items-center gap-2.5">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full border border-gold/50 font-mono text-[10px] text-gold">
+                {i + 1}
+              </span>
+              <span className="hidden font-mono text-[10px] uppercase tracking-wide2 text-ivory-muted sm:block">
+                {step}
+              </span>
+            </span>
+            {i < 3 && <span aria-hidden className="mx-3 h-px flex-1 bg-gold/20" />}
+          </li>
+        ))}
+      </ol>
+
       {/* demo disclaimer */}
       <div
         className="mt-8 flex max-w-3xl items-start gap-3 border border-gold/30 bg-gold/5 px-5 py-4"

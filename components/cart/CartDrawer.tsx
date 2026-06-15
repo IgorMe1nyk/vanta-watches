@@ -84,8 +84,16 @@ export default function CartDrawer() {
             ) : (
               <>
                 <ul className="flex-1 divide-y divide-gold/10 overflow-y-auto px-6">
-                  {lines.map((l) => (
-                    <li key={`${l.slug}-${l.strap}`} className="flex gap-4 py-5">
+                  {lines.map((l, i) => (
+                    <motion.li
+                      key={`${l.slug}-${l.strap}`}
+                      layout
+                      initial={{ opacity: 0, x: 32 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 32 }}
+                      transition={{ duration: 0.45, delay: i * 0.05, ease: [0.22, 1, 0.36, 1] }}
+                      className="flex gap-4 py-5"
+                    >
                       <Link
                         href={`/watch/${l.slug}`}
                         onClick={closeDrawer}
@@ -149,7 +157,7 @@ export default function CartDrawer() {
                           </p>
                         </div>
                       </div>
-                    </li>
+                    </motion.li>
                   ))}
                 </ul>
                 <div className="border-t border-gold/10 px-6 py-6">
