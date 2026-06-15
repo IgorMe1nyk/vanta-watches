@@ -97,6 +97,21 @@ html.custom-cursor [role="button"] {
   cursor: none !important;
 }
 
+/* exploded-watch part labels (drei Html) */
+.explode-label {
+  animation: labelfade 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes labelfade {
+  from {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* film grain overlay for atmosphere */
 .grain::after {
   content: "";

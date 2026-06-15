@@ -92,7 +92,7 @@ export default function Hero() {
             Calibre VNT-01 — 70h reserve
           </p>
           <p className="hidden font-mono text-[10px] uppercase tracking-luxe text-ivory-faint sm:block">
-            Drag the watch · scroll to turn it over
+            Hover to take it apart · drag to turn
           </p>
           <p className="font-mono text-[10px] uppercase tracking-luxe text-ivory-faint">
             Scroll <span aria-hidden>↓</span>

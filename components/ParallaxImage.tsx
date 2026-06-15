@@ -12,12 +12,15 @@ export default function ParallaxImage({
   className,
   sizes = "(max-width: 768px) 100vw, 50vw",
   strength = 60,
+  objectPosition = "center",
 }: {
   src: string;
   alt: string;
   className?: string;
   sizes?: string;
   strength?: number;
+  /** CSS object-position for the photo's subject (e.g. "50% 18%" to keep a head in frame) */
+  objectPosition?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
@@ -33,7 +36,14 @@ export default function ParallaxImage({
         style={reduced ? undefined : { y }}
         className="absolute -inset-y-[12%] inset-x-0"
       >
-        <Image src={src} alt={alt} fill sizes={sizes} className="object-cover" />
+        <Image
+          src={src}
+          alt={alt}
+          fill
+          sizes={sizes}
+          className="object-cover"
+          style={{ objectPosition }}
+        />
       </motion.div>
     </div>
   );

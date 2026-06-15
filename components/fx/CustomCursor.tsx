@@ -3,14 +3,15 @@
 import { useEffect, useRef, useState } from "react";
 
 /**
- * Refined dot + trailing ring cursor. Grows over interactive elements,
- * shows a label over elements with data-cursor-label. Pointer-fine only;
- * disabled for touch and reduced-motion users.
+ * Minimal, low-latency cursor: a small hollow ring that tracks the pointer
+ * with no lag (transform set directly on pointermove — no easing loop), plus
+ * a tiny centre dot. Gently enlarges over interactive elements. No blend
+ * modes, no trails, no labels. Pointer-fine + motion-OK only; otherwise the
+ * native cursor is used.
  */
 export default function CustomCursor() {
-  const dotRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
-  const labelRef = useRef<HTMLDivElement>(null);
+  const dotRef = useRef<HTMLDivElement>(null);
   const [enabled, setEnabled] = useState(false);
 
   useEffect(() => {
@@ -19,61 +20,53 @@ export default function CustomCursor() {
     if (!fine || reduced) return;
     setEnabled(true);
 
-    const pos = { x: -100, y: -100 };
-    const ring = { x: -100, y: -100 };
+    const ring = ringRef.current!;
+    const dot = dotRef.current!;
     let hot = false;
-    let label = "";
-    let raf = 0;
-
-    const isInteractive = (el: Element | null): { hot: boolean; label: string } => {
-      if (!el) return { hot: false, label: "" };
-      const labelled = (el as HTMLElement).closest?.("[data-cursor-label]") as HTMLElement | null;
-      if (labelled) return { hot: true, label: labelled.dataset.cursorLabel || "" };
-      const inter = (el as HTMLElement).closest?.(
-        "a, button, [role=button], input, select, textarea, label, [data-cursor]",
-      );
-      return { hot: !!inter, label: "" };
-    };
 
     const onMove = (e: PointerEvent) => {
-      pos.x = e.clientX;
-      pos.y = e.clientY;
-      const probe = isInteractive(document.elementFromPoint(e.clientX, e.clientY));
-      hot = probe.hot;
-      label = probe.label;
+      // direct positioning — zero perceptible lag
+      const x = e.clientX;
+      const y = e.clientY;
+      dot.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
+      ring.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) scale(${hot ? 1.55 : 1})`;
+      if (ring.style.opacity !== "1") {
+        ring.style.opacity = "1";
+        dot.style.opacity = "1";
+      }
     };
 
-    const tick = () => {
-      ring.x += (pos.x - ring.x) * 0.16;
-      ring.y += (pos.y - ring.y) * 0.16;
-      if (dotRef.current) {
-        dotRef.current.style.transform = `translate3d(${pos.x}px, ${pos.y}px, 0) translate(-50%, -50%)`;
-        dotRef.current.style.opacity = label ? "0" : "1";
-      }
-      if (ringRef.current) {
-        const s = label ? 2.6 : hot ? 1.7 : 1;
-        ringRef.current.style.transform = `translate3d(${ring.x}px, ${ring.y}px, 0) translate(-50%, -50%) scale(${s})`;
-        ringRef.current.style.borderColor = hot
-          ? "rgba(230,205,150,0.9)"
-          : "rgba(200,168,107,0.45)";
-        ringRef.current.style.backgroundColor = label
-          ? "rgba(200,168,107,0.92)"
-          : "transparent";
-      }
-      if (labelRef.current) {
-        labelRef.current.style.transform = `translate3d(${ring.x}px, ${ring.y}px, 0) translate(-50%, -50%)`;
-        labelRef.current.style.opacity = label ? "1" : "0";
-        if (label) labelRef.current.textContent = label;
-      }
-      raf = requestAnimationFrame(tick);
+    const refreshHot = (target: EventTarget | null) => {
+      const el = target as Element | null;
+      hot = !!el?.closest?.("a, button, [role=button], input, select, textarea, label, [data-cursor]");
+      ring.dataset.hot = hot ? "1" : "0";
+    };
+
+    const onOver = (e: PointerEvent) => refreshHot(e.target);
+    const onDown = () => {
+      ring.style.setProperty("--press", "0.85");
+    };
+    const onUp = () => {
+      ring.style.setProperty("--press", "1");
+    };
+    const onLeave = () => {
+      ring.style.opacity = "0";
+      dot.style.opacity = "0";
     };
 
     window.addEventListener("pointermove", onMove, { passive: true });
-    raf = requestAnimationFrame(tick);
+    window.addEventListener("pointerover", onOver, { passive: true });
+    window.addEventListener("pointerdown", onDown, { passive: true });
+    window.addEventListener("pointerup", onUp, { passive: true });
+    document.addEventListener("pointerleave", onLeave);
     document.documentElement.classList.add("custom-cursor");
+
     return () => {
       window.removeEventListener("pointermove", onMove);
-      cancelAnimationFrame(raf);
+      window.removeEventListener("pointerover", onOver);
+      window.removeEventListener("pointerdown", onDown);
+      window.removeEventListener("pointerup", onUp);
+      document.removeEventListener("pointerleave", onLeave);
       document.documentElement.classList.remove("custom-cursor");
     };
   }, []);
@@ -82,18 +75,16 @@ export default function CustomCursor() {
 
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 z-[200]">
-      <div
-        ref={ringRef}
-        className="absolute left-0 top-0 h-9 w-9 rounded-full border transition-[border-color] duration-200"
-      />
+      {/* centre dot */}
       <div
         ref={dotRef}
-        className="absolute left-0 top-0 h-1.5 w-1.5 rounded-full bg-gold-bright"
+        className="absolute left-0 top-0 h-1 w-1 rounded-full bg-gold-bright opacity-0"
       />
+      {/* hollow ring — border brightens on interactive, scale handled in JS */}
       <div
-        ref={labelRef}
-        className="absolute left-0 top-0 flex items-center justify-center font-mono text-[8px] uppercase tracking-[0.2em] text-vanta-950 opacity-0 transition-opacity duration-200"
-        style={{ width: 90, height: 90 }}
+        ref={ringRef}
+        data-hot="0"
+        className="absolute left-0 top-0 h-7 w-7 rounded-full border border-gold/45 opacity-0 transition-[border-color,width,height] duration-200 ease-out data-[hot=1]:border-gold-bright/80"
       />
     </div>
   );

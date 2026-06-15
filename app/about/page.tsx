@@ -67,7 +67,8 @@ export default function AboutPage() {
             alt="A man in a dark suit, photographed in low light"
             className="h-[55vh] w-full md:h-[75vh]"
             sizes="100vw"
-            strength={80}
+            strength={36}
+            objectPosition="50% 18%"
           />
         </Reveal>
       </section>
